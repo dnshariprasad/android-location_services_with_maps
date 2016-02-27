@@ -13,13 +13,20 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 //MAC -- keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
 
-public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener, OnMapReadyCallback {
     private TextView mLat, mLon;
     private GoogleApiClient mGoogleApiClient;
     private Location mLocation;
     private LocationRequest mLocationRequest;
+    private GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +34,9 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
         setContentView(R.layout.activity_main);
         mLat = (TextView) findViewById(R.id.lat);
         mLon = (TextView) findViewById(R.id.lon);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
         builldGoogleApiClient();
     }
 
@@ -105,5 +115,18 @@ public class MainActivity extends AppCompatActivity implements GoogleApiClient.C
             mLon.setText(String.valueOf(mLocation.getLongitude()));
 
         }
+        LatLng loc = new LatLng(mLocation.getLatitude(), mLocation.getLongitude());
+
+        if (mMap != null) {
+            mMap.addMarker(new MarkerOptions().position(loc)).setVisible(true);
+
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(loc, 15));
+        }
+
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
     }
 }
